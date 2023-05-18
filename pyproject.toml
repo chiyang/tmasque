@@ -1,0 +1,33 @@
+# Build: `python -m build`
+# Upload: `python -m twine upload --repository testpypi dist/*`
+# Install: `python -m pip install --index-url https://test.pypi.org/simple/ tmasque==0.0.5`
+[build-system]
+requires = ["setuptools>=62.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tmasque"
+authors = [
+  { name="Chi Yang", email="chiyang@mail.cgu.edu.tw" }
+]
+description = "This targeted mass spectrometry quality encoder (tmasque) evaluates peak quality systematically for targeted mass spectrometry."
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies=['numpy', 'pandas', 'xlsxwriter', 'matplotlib>=3.6.3', 'torch>=1.11']
+license = {text = "MIT License"}
+dynamic=['version']
+#[tool.setuptools]
+#include-package-data = true
+#[tool.setuptools.packages.find]
+#where = ["tmasque"]
+[tool.setuptools.dynamic]
+version = {attr = "tmasque.__version__"}
+
+[tool.setuptools.package-data]
+"*" = ["*.txt", "*.md", ".py"]
+"tmasque.encoder"=["*.pickle"]
+"tmasque.example"=["*.tsv", "*.csv"]
+[project.scripts]
+tmasque="tmasque.tmasque_runner:main"
+
+
