@@ -30,4 +30,9 @@ version = {attr = "tmasque.__version__"}
 [project.scripts]
 tmasque="tmasque.tmasque_runner:main"
 
+[project.urls]
+"Homepage" = "https://github.com/ChiYang/tmasque"
+"Repository" = "https://github.com/ChiYang/tmasque"
+"Bug Tracker" = "https://github.com/ChiYang/tmasque/issues"
+
 
