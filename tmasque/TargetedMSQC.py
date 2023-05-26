@@ -509,7 +509,7 @@ class TargetedMSQC():
     else:
       return corr
 
-  def _calculatePairRatioConsistency(self, chromatogram_data): #4(sum補0) #Level 1
+  def calculateEachPairRatioConsistency(self, chromatogram_data): #4(sum補0) #Level 1
     Area2SumRatio = chromatogram_data['Area2SumRatio']
     cols = list(set(['.'.join(i.split('.')[:-1]) for i in Area2SumRatio.columns]))
     PairRatioConsistency = []
@@ -530,7 +530,7 @@ class TargetedMSQC():
     for chrom_data in chrom_data_list:
       if chrom_data is None:
         continue
-      PairRatioConsistency = pd.concat([PairRatioConsistency, self._calculatePairRatioConsistency(chrom_data)])
+      PairRatioConsistency = pd.concat([PairRatioConsistency, self.calculateEachPairRatioConsistency(chrom_data)])
       rownames.append(chrom_data['fileName'])
     PairRatioConsistency.index = rownames
     return PairRatioConsistency

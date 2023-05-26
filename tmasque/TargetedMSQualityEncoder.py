@@ -31,7 +31,7 @@ def _chrom_plot_page(options):
   plt.rcParams['figure.dpi'] = options['dpi']
   plt.rcParams['figure.figsize'] = (options['fig_w'], options['fig_h'])
   plt.rcParams.update({'font.size': 10})
-  
+  switchLightHeavy = True if options['switchLightHeavy'] else False
   fig, axs = plt.subplots(nrow*2, ncol, layout="constrained")
   item_idx = 0
   if page_items[0] is not None:
@@ -54,11 +54,11 @@ def _chrom_plot_page(options):
         score_table = score_tables[ps][fn]
       except:
         score_table = None
-      _sub_chrom_plot(chrom_data, score_table, axs[2*row_idx, col_idx], axs[2*row_idx + 1, col_idx], options = options, mol_separation = options['mol_separation'])
+      _sub_chrom_plot(chrom_data, score_table, axs[2*row_idx, col_idx], axs[2*row_idx + 1, col_idx], options = options, mol_separation = options['mol_separation'], switchLightHeavy=switchLightHeavy)
       item_idx += 1
   return fig
 
-def _sub_chrom_plot(chrom_data, store_table, ax1, ax2, options=None, mol_separation=True):
+def _sub_chrom_plot(chrom_data, store_table, ax1, ax2, options=None, mol_separation=True, switchLightHeavy=False):
   fn = chrom_data['fileName']
   ps = chrom_data['peptideModifiedSequence']
   time = chrom_data['time']
@@ -100,8 +100,12 @@ def _sub_chrom_plot(chrom_data, store_table, ax1, ax2, options=None, mol_separat
   if heavy_exp < 0:
       heavy_exp = 0
   for fragment in chrom_data['transitions']:
-      ax1.plot(time, [intensity/(10**light_exp) for intensity in chrom_data['intensity'][fragment + '.light']],  linewidth=1, label=fragment + '.light')
-      ax2.plot(time, [intensity/(10**heavy_exp) for intensity in chrom_data['intensity'][fragment + '.heavy']],  linewidth=1, label=fragment + '.heavy')
+      if switchLightHeavy:
+        ax1.plot(time, [intensity/(10**light_exp) for intensity in chrom_data['intensity'][fragment + '.light']],  linewidth=1, label=fragment + '.heavy')
+        ax2.plot(time, [intensity/(10**heavy_exp) for intensity in chrom_data['intensity'][fragment + '.heavy']],  linewidth=1, label=fragment + '.light')
+      else:
+        ax1.plot(time, [intensity/(10**light_exp) for intensity in chrom_data['intensity'][fragment + '.light']],  linewidth=1, label=fragment + '.light')
+        ax2.plot(time, [intensity/(10**heavy_exp) for intensity in chrom_data['intensity'][fragment + '.heavy']],  linewidth=1, label=fragment + '.heavy')
       if not mol_separation:
         ax1.set_title(ps + '\n', fontsize=12, fontweight='bold')
       ax1.annotate(fn, xy=(0.5, 1.02), xycoords='axes fraction', ha='center', va='bottom', fontsize=10, fontweight='normal')
@@ -199,7 +203,7 @@ def _sub_chrom_plot(chrom_data, store_table, ax1, ax2, options=None, mol_separat
     ax2.set_facecolor('lightgray')
 
 class TargetedMSQualityEncoder():
-  def __init__(self, chromatogram_tsv, peak_boundary_csv, core_num=20, switchLightHeavy=False, device='auto', summarize_type='meidan'):
+  def __init__(self, chromatogram_tsv, peak_boundary_csv, core_num=20, switchLightHeavy=False, device='auto'):
     self.core_num = core_num
     self.peak_qc = PeakQualityControl(chromatogram_tsv, peak_boundary_csv, core_num=self.core_num, switchLightHeavy=switchLightHeavy)
     self.device = device
@@ -207,6 +211,7 @@ class TargetedMSQualityEncoder():
     self._sample_df = None
     self._transition_df = None
     self.no_boundary_set = dict()
+    self.switchLightHeavy = switchLightHeavy
     self.quality_warn_range_config = dict(
       # Type 1 quality
       TransitionJaggedness_light = dict(min=0, max=0.3, direction=-1),
@@ -923,7 +928,7 @@ class TargetedMSQualityEncoder():
             score_tables[ps][fn] = None
         page_input_options.append({'page_items': page_items, 'nrow': nrow, 'ncol': ncol, 'score_tables': score_tables,
                                     'dpi': dpi, 'fig_w': fig_w, 'fig_h': fig_h, 'page_num': page_idx + 1, 'total_page': total_page,
-                                    'mol_separation': mol_separation, 'type1_min': type1_min, 'type1_max': type1_max, 
+                                    'mol_separation': mol_separation, 'type1_min': type1_min, 'type1_max': type1_max, 'switchLightHeavy': self.switchLightHeavy,
                                     'type2_min':type2_min, 'type2_max': type2_max, 'type3_min': type3_min, 'type3_max': type3_max
                                   })
     print('Generating figures ...')

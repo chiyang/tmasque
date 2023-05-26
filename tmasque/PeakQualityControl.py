@@ -28,7 +28,7 @@ class PeakQualityControl():
     if ps not in self.quality_indexes[fn]:
       self.quality_indexes[fn][ps] = dict()
     if level not in self.quality_indexes[fn][ps]:
-      self.quality_indexes[fn][ps][level] = dict()    
+      self.quality_indexes[fn][ps][level] = dict()
     if level == 'transition_level':
       if isotope not in self.quality_indexes[fn][ps][level]:
         self.quality_indexes[fn][ps][level][isotope] = dict()
