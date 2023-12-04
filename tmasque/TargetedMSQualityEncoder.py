@@ -233,6 +233,7 @@ class TargetedMSQualityEncoder():
       PairSimilarity=dict(min=0.7, max=1, direction=1),
       PairShift=dict(min=0, max=0.3, direction=-1),
       PairFWHMConsistency=dict(min=0, max=1, direction=-1),
+
       # Type 2 quality
       IsotopeJaggedness_light=dict(min=0, max=0.3, direction=-1),
       IsotopeSymmetry_light=dict(min=0, max=1, direction=1),
@@ -263,11 +264,9 @@ class TargetedMSQualityEncoder():
       MeanIsotopeRatioConsistency_light=dict(min=0, max=0.5, direction=-1),
       MeanIsotopeFWHMConsistency_light=dict(min=0, max=1, direction=-1),
       Area2SumRatioCV_light=dict(min=0, max=0.5, direction=-1),
-
       MeanIsotopeRatioConsistency_heavy=dict(min=0, max=0.5, direction=-1),
       MeanIsotopeFWHMConsistency_heavy=dict(min=0, max=1, direction=-1),
       Area2SumRatioCV_heavy=dict(min=0, max=0.5, direction=-1),
-
       MeanIsotopeRTConsistency=dict(min=0, max=0.5, direction=-1),
       PairRatioConsistency=dict(min=0, max=0.5, direction=-1)
     )
@@ -277,15 +276,15 @@ class TargetedMSQualityEncoder():
     pb = self.peak_qc.ms_data.peak_boundary
     no_pb = pb[(pb['MinStartTime'].isna()) | (pb['MaxEndTime'].isna())]
     self.no_boundary_set = dict()
-    for idx, row in no_pb.iterrows():
+    for _, row in no_pb.iterrows():
       ps = row['PeptideModifiedSequence']
       fn = row['FileName']
       if ps not in self.no_boundary_set:
-          self.no_boundary_set[ps] = set()
+        self.no_boundary_set[ps] = set()
       self.no_boundary_set[ps].add(fn)
 
-  def run_encoder(self):
-    self.quality_encoder = QualityEncoder(device=self.device)
+  def run_encoder(self, encoder_type1_path=None, encoder_type2_path=None, encoder_type3_path=None, encoder_dim=[2, 2, 2]):
+    self.quality_encoder = QualityEncoder(device=self.device, encoder_type1_path=encoder_type1_path, encoder_type2_path=encoder_type2_path, encoder_type3_path=encoder_type3_path, encoder_dim=encoder_dim)
     self.qc_values = [
       self.peak_qc.calculateQualityType1(),
       self.peak_qc.calculateQualityType2(),

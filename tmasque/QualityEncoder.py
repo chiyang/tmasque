@@ -39,10 +39,19 @@ class Encoder(nn.Module):
 
 
 class QualityEncoder(object):
-  def __init__(self, device='auto'):
-    self.type1_encoder = Encoder(2, qc_level=1)
-    self.type2_encoder = Encoder(2, qc_level=2)
-    self.type3_encoder = Encoder(2, qc_level=3)
+  def __init__(self, device='auto', encoder_type1_path=None, encoder_type2_path=None, encoder_type3_path=None, encoder_dim = [2, 2, 2]):
+    self.encoder_type1_path = encoder_type1_path
+    self.encoder_type2_path = encoder_type2_path
+    self.encoder_type3_path = encoder_type3_path
+    if not self.encoder_type1_path:
+      self.encoder_type1_path = os.path.join(os.path.split(__file__)[0], 'encoder', 'quality_encoder_type1.pickle')
+    if not self.encoder_type2_path:
+      self.encoder_type2_path = os.path.join(os.path.split(__file__)[0], 'encoder', 'quality_encoder_type2.pickle')
+    if not self.encoder_type3_path:
+      self.encoder_type3_path = os.path.join(os.path.split(__file__)[0], 'encoder', 'quality_encoder_type3.pickle')
+    self.type1_encoder = Encoder(encoder_dim[0], qc_level=1)
+    self.type2_encoder = Encoder(encoder_dim[1], qc_level=2)
+    self.type3_encoder = Encoder(encoder_dim[2], qc_level=3)
     self.type1_quality_refs = [
       [0.0,  1.0, 0.0, 0.0, 0.050, 0.250, 0.0,    0.0,  1.0, 0.0, 0.0, 0.050, 0.250, 0.0,   1.0, 0.0, 0.0],
       [0.3,  0.4, 0.3, 0.3, 0.335, 0.475, 0.3,    0.3,  0.4, 0.3, 0.3, 0.335, 0.475, 0.3,   0.7, 0.3, 0.3],
@@ -94,16 +103,10 @@ class QualityEncoder(object):
     else:
       return score, latent
 
-  def load_encoder(self, encoder_type1_path=None, encoder_type2_path=None, encoder_type3_path=None):
-    if encoder_type1_path is None:
-      encoder_type1_path = os.path.join(os.path.split(__file__)[0], 'encoder', 'quality_encoder_type1.pickle')
-    if encoder_type2_path is None:
-      encoder_type2_path = os.path.join(os.path.split(__file__)[0], 'encoder', 'quality_encoder_type2.pickle')
-    if encoder_type3_path is None:
-      encoder_type3_path = os.path.join(os.path.split(__file__)[0], 'encoder', 'quality_encoder_type3.pickle')
-    self.type1_encoder.load_state_dict(torch.load(encoder_type1_path, map_location=self.device))
-    self.type2_encoder.load_state_dict(torch.load(encoder_type2_path, map_location=self.device))
-    self.type3_encoder.load_state_dict(torch.load(encoder_type3_path, map_location=self.device))
+  def load_encoder(self):
+    self.type1_encoder.load_state_dict(torch.load(self.encoder_type1_path, map_location=self.device))
+    self.type2_encoder.load_state_dict(torch.load(self.encoder_type2_path, map_location=self.device))
+    self.type3_encoder.load_state_dict(torch.load(self.encoder_type3_path, map_location=self.device))
     self.type1_encoder.to(self.device)
     self.type2_encoder.to(self.device)
     self.type3_encoder.to(self.device)

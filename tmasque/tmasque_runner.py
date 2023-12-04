@@ -32,6 +32,12 @@ def main():
   parser_main.add_argument('--output_chromatogram_fig_w', '-figw', type=int, default=30, help="The figure width in inches. Only works when --output_chromatogram_pdf is set. (default: 30)")
   parser_main.add_argument('--output_chromatogram_fig_h', '-figh', type=int, default=42, help="The figure height in inches. Only works when --output_chromatogram_pdf is set. (default: 42)")
   parser_main.add_argument('--output_mixed_mol', '-mix', action='store_true', help="If set, chromatogram data for each molecule will be mixed in one pdf page. (default: unset)")
+  parser_main.add_argument('--encoder_type1_path', type=str, default=None, help='Custom Type1 encoder pickle path')
+  parser_main.add_argument('--encoder_type2_path', type=str, default=None, help='Custom Type2 encoder pickle path')
+  parser_main.add_argument('--encoder_type3_path', type=str, default=None, help='Custom Type3 encoder pickle path')
+  parser_main.add_argument('--encoder_dim', type=int, default=2, help='Custom dimension for latent space')
+
+  
   parser_main.set_defaults(example=False)
   parser_example = subparsers.add_parser('example', help='A quick example will be run. An output folder will be created in the current working directory. The folder contains input files (chromatogram.tsv and PeakBoundar.csv) and output data.')
   parser_example.set_defaults(
@@ -64,7 +70,7 @@ def main():
     tmsqe.plot_chromatograms(args.output_chromatogram_pdf)
   else:
     tmsqe = TargetedMSQualityEncoder(args.chromatogram_tsv, args.peak_boundary_csv, core_num=args.thread_num, switchLightHeavy=switch_light_heavy)
-    tmsqe.run_encoder()
+    tmsqe.run_encoder(encoder_type1_path = args.encoder_type1_path, encoder_type2_path=args.encoder_type2_path, encoder_type3_path=args.encoder_type3_path, encoder_dim=[args.encoder_dim, args.encoder_dim, args.encoder_dim])
     tmsqe.output_transition_quality(
       args.output_transition_folder,
       file_group_delimiter=args.file_group_delimiter,
